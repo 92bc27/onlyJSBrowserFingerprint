@@ -87,9 +87,7 @@
             }, this).join('?'))
         },getInternetExplorerFonts: function() {
             var k = [];
-            var d = document.createElement('object');
-            d.setAttribute('classid', 'clsid:3050f819-98b5-11cf-bb82-00aa00bdce0b');
-            document.body.appendChild(d);
+            var d = document.getElementsByTagName('object')[0];
             if (d.fonts) {
                 for (var i = 1; i < d.fonts.Count; i++) {
                     k.push(d.fonts(i))
@@ -141,21 +139,19 @@
             return !!x !== null
         },getSpecialFeatures: function() {
             var k = [];
-            var j = [window.postMessage, EventSource, Storage, FileReader, Worker, navigator.geolocation, window.applicationCache, window.indexedDB, window.WebSocket, window.openDatabase];
+            var j = [window.postMessage, Storage, FileReader, Worker, navigator.geolocation, window.applicationCache, window.indexedDB, window.WebSocket, window.openDatabase];
             for (var i = 0; i < j.length; i++) {
                 k.push(((typeof (j[i]) !== 'undefined') ? true : false))
             }
             return k.join('?')
         },getCanvasFingerprint: function() {
-            if (typeof (window.atob) == "undefined") {
-                function atob(a) {
-                    var b = '', e, c, h = '', f, g = '', d = 0;
-                    k = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-                    do
-                        e = k.indexOf(a.charAt(d++)), c = k.indexOf(a.charAt(d++)), f = k.indexOf(a.charAt(d++)), g = k.indexOf(a.charAt(d++)), e = e << 2 | c >> 4, c = (c & 15) << 4 | f >> 2, h = (f & 3) << 6 | g, b += String.fromCharCode(e), 64 != f && (b += String.fromCharCode(c)), 64 != g && (b += String.fromCharCode(h));
-                    while (d < a.length);
-                    return unescape(b)
-                }
+            function atob(a) {
+                var b = '', e, c, h = '', f, g = '', d = 0;
+                k = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+                do
+                    e = k.indexOf(a.charAt(d++)), c = k.indexOf(a.charAt(d++)), f = k.indexOf(a.charAt(d++)), g = k.indexOf(a.charAt(d++)), e = e << 2 | c >> 4, c = (c & 15) << 4 | f >> 2, h = (f & 3) << 6 | g, b += String.fromCharCode(e), 64 != f && (b += String.fromCharCode(c)), 64 != g && (b += String.fromCharCode(h));
+                while (d < a.length);
+                return unescape(b)
             }
             function bin2hex(a) {
                 var b, c, d = '', e;
@@ -198,8 +194,8 @@
                 i.fillText("OUndoiHO)():_+/-8790", 2, 15);
                 i.fillStyle = "rgba(30,20,30,0.8)";
                 i.fillText("OUndoiHO)():_+/-8790", 7, 21);
-                c = a.toDataURL("image/png");
-                b = atob(c.replace("data:image/png;base64,", ""));
+                var c = a.toDataURL("image/png");
+                var b = atob(c.replace("data:image/png;base64,", ""));
                 return this.removeElement(a, bin2hex(b.slice(-16, -12)))
             }
             return false
@@ -257,6 +253,7 @@
             }
             return k.join('?')
         },hasFontSmoothing: function() {
+            var c;
             if (typeof (screen.fontSmoothingEnabled) === "undefined" && this.isCanvasSupported()) {
                 try {
                     c = document.createElement("canvas");
@@ -336,7 +333,7 @@
                 return d
             }
         },removeElement: function(e, r) {
-            if (e) {
+            if (typeof (e) !== 'undefined') {
                 document.body.removeChild(e)
             }
             return r
