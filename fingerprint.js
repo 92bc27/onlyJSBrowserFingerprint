@@ -1,7 +1,9 @@
+;
 (function(a, b, c) {
     b[a] = c()
 })('T', this, function() {
-    var T = function() {
+    
+    var T = function(h) {
         this.each = function(a, b, c) {
             if (a === null) {
                 return
@@ -32,119 +34,104 @@
                 g[g.length] = e.call(f, a, b, c)
             });
             return g
-        }
+        };
     };
-    T.prototype = {get: function() {
+    
+    T.prototype = {
+        
+        get: function() {
             var k = [], n = [];
-            k.push(this.getSystemInformation());
-            k.push(this.hasMediaSupport());
-            k.push(this.hasXmlHttpRequestSupport());
+            k.push(this.getSystemInformation(this.getSystemList()));
             k.push(this.getCanvasFingerprint());
             k.push(this.getWebglInformations());
             k.push(this.hasFontSmoothing());
-            function isInternetExplorer() {
-                var a = navigator.userAgent.toLowerCase();
-                return (a.indexOf('msie') != -1) ? parseInt(a.split('msie')[1]) : false
+            k.push(this.getFonts());
+            k.push(this.getPropertyCounter([document, window, navigator, screen, history, location]).join(':'));
+            k.push(this.getInternetExplorerFonts().join(':'));
+            k.push(this.getRegularPlugins());
+            
+            return k.join('')
+        },
+        
+        getFonts: function() {
+            return (new F).getFontList()
+        },
+        getSystemList: function() {
+            return ['postMessage', 'Storage', 'FileReader', 'Worker', 'applicationCache', 'indexedDB', 'WebSocket', 'Geolocation', 'openDatabase', 'WebGLRenderingContext', '(new ActiveXObject("Microsoft.XMLHTTP"))', '(new XMLHttpRequest())', '(new ActiveXObject("Msxml2.XMLHTTP"))', '(new Date).getTimezoneOffset()', 'screen.fontSmoothingEnabled', 'screen.deviceXDPI', 'screen.deviceYDPI', 'screen.logicalXDPI', 'screen.logicalYDPI', 'screen.systemXDPI', 'screen.systemYDPI', 'screen.bufferDepth', 'navigator.appMinorVersion', 'navigator.cpuClass', 'navigator.systemLanguage', 'navigator.browserLanguage', 'navigator.userLanguage', 'window.doNotTrack', 'screen.availHeight', 'screen.availWidth', 'screen.pixelDepth', 'screen.colorDepth', 'navigator.appCodeName', 'navigator.appName', 'navigator.appVersion', 'navigator.userAgent', 'navigator.doNotTrack', 'navigator.onLine', 'navigator.platform', 'navigator.product', 'navigator.productSub', 'navigator.vendor', 'navigator.vendorSub', 'navigator.language', 'navigator.cookieEnabled', 'doNotTrack', 'navigator.oscpu', 'navigator.buildID', 'offscreenBuffering', 'document.defaultCharset', 'styleMedia.type', 'crypto.version', 'clipboardData', 'clientInformation', 'opera.version()', 'opera.buildNumber()', 'locationbar.visible', 'menubar.visible', 'personalbar.visible', 'scrollbars.visible', 'statusbar.visible', 'toolbar.visible', 'navigator.javaEnabled()', 'navigator.taintEnabled()', 'Intl.DateTimeFormat().resolvedOptions().calendar', 'Intl.DateTimeFormat().resolvedOptions().day', 'Intl.DateTimeFormat().resolvedOptions().locale', 'Intl.DateTimeFormat().resolvedOptions().month', 'Intl.DateTimeFormat().resolvedOptions().numberingSystem', 'Intl.DateTimeFormat().resolvedOptions().timeZone', 'Intl.DateTimeFormat().resolvedOptions().year']
+        },
+        getSystemInformation: function(l) {
+            for (var i = 0, c = 0, t = 0, n = [], d = 0; i < l.length; i++, d = n.length) {
+                try {
+                    c = eval(l[i]);
+                    t = typeof c;
+                    
+                    if (t !== 'undefined')
+                        n[d] = t === 'object' || t === 'function' ? true : c.toString();
+                    else
+                        n[d] = false;
+                } 
+                catch (e) {
+                    n[d] = e.name;
+                    continue;
+                }
             }
-            var i = isInternetExplorer();
-            if (i) {
-                k.push(this.getInternetExplorerFonts())
+            return n.join(':')
+        },
+        getPropertyCounter: function(k) {
+            
+            String.prototype.c = function(n) {
+                var r = this.match(new RegExp(n, 'g'));
+                
+                if (r === null)
+                    return
+                
+                return r.length;
             }
-            if (i > 10 || !i) {
-                k.push(this.getRegularPlugins());
-                k.push(this.getSpecialFeatures())
+            
+            function p(a, b, c) {
+                a[a.length] = b.charAt(0);
+                return
             }
-            for (var j = 0; j < k.length; j++) {
-                n.push(this.MurmurHashFunction(k[j], 32).toString(16))
-            }
-            return n.join('')
-        },getSystemInformation: function() {
-            var j = [(new Date).getTimezoneOffset()];
-            var i = [screen.fontSmoothingEnabled, screen.deviceXDPI, screen.deviceYDPI, screen.logicalXDPI, screen.logicalYDPI, screen.systemXDPI, screen.systemYDPI, screen.bufferDepth, navigator.appMinorVersion, navigator.cpuClass, navigator.systemLanguage, navigator.browserLanguage, navigator.userLanguage, window.doNotTrack, screen.availHeight, screen.availWidth, screen.pixelDepth, screen.colorDepth, navigator.appCodeName, navigator.appName, navigator.appVersion, navigator.userAgent, navigator.doNotTrack, navigator.onLine, navigator.platform, navigator.product, navigator.productSub, navigator.vendor, navigator.vendorSub, navigator.language, navigator.cookieEnabled, window.doNotTrack, navigator.oscpu, navigator.buildID, window.offscreenBuffering, document.defaultCharset];
-            for (var k = 0; k < i.length; k++) {
-                j.push((typeof (i[k]) !== 'undefined') ? i[k] : false)
-            }
-            return j.join('?')
-        },getInternetExplorerPlugins: function() {
-            if (window.ActiveXObject) {
-                var b = ['ShockwaveFlash.ShockwaveFlash', 'AcroPDF.PDF', 'PDF.PdfCtrl', 'QuickTime.QuickTime', 'SWCtl.SWCtl', 'WMPlayer.OCX', 'AgControl.AgControl', 'Skype.Detection'];
-                return this.map(b, function(c) {
-                    try {
-                        new ActiveXObject(c);
-                        return c
-                    } catch (e) {
-                        return
-                    }
-                }).join('?')
-            }
-            return
-        },getRegularPlugins: function() {
+            
+            for (var j = 0, c = 0, n = [], d = k.length; j < d; j++)
+                for (var i in k[j])
+                    if (typeof k[j][i] !== 'undefined')
+                        p(n, typeof k[j][i], c++)
+            
+            var e = n.join('');
+            n = [];
+            
+            for (var l = ['o', 'n', 's', 'f', 'b'], j = 0; j < l.length; j++)
+                n[n.length] = ((typeof e.c(l[j]) !== 'undefined' ? e.c(l[j]) : 0) + l[j]);
+            
+            return [n.join(''), c]
+        },
+        getRegularPlugins: function() {
             return (this.map(navigator.plugins, function(p) {
                 var b = this.map(p, function(a) {
                     return [a.type, a.suffixes].join('?')
                 }).join('?');
                 return [p.name, ((typeof (p.version) !== 'undefined') ? p.version : false), p.filename, p.description.replace(/<a href=\".*\">(.*)<\/a>/, '$1'), b].join('?')
             }, this).join('?'))
-        },getInternetExplorerFonts: function() {
+        },
+        getInternetExplorerFonts: function() {
             var k = [];
-            var d = document.getElementsByTagName('object')[0];
+            var e = document.body.innerHTML;
+            document.body.innerHTML = '<object id="_ob" classid="clsid:3050f819-98b5-11cf-bb82-00aa00bdce0b"></object>';
+            var d = document.getElementById('_ob');
+            
             if (d.fonts) {
                 for (var i = 1; i < d.fonts.Count; i++) {
                     k.push(d.fonts(i))
                 }
-                k.push(d.fonts.Count)
             } else {
                 k.push(false)
             }
-            return this.removeElement(d, k.join('?'))
-        },hasMediaSupport: function() {
-            var b = [];
-            var a = document.createElement('audio');
-            var v = document.createElement('video');
-            document.body.appendChild(a);
-            document.body.appendChild(v);
-            if (!!a.canPlayType) {
-                b.push(!!(a.canPlayType('audio/mpeg;').replace(/no/, '')));
-                b.push(!!(a.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, '')));
-                b.push(!!(a.canPlayType('audio/wav; codecs="1"').replace(/no/, '')));
-                b.push(!!(a.canPlayType('audio/mp4; codecs="mp4a.40.2"').replace(/no/, '')))
-            } else {
-                b.push(false)
-            }
-            if (!!v.canPlayType) {
-                b.push(!!(v.canPlayType('video/webm; codecs="vp8, vorbis"').replace(/no/, '')));
-                b.push(!!(v.canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"').replace(/no/, '')));
-                b.push(!!(v.canPlayType('video/ogg; codecs="theora"').replace(/no/, '')))
-            } else {
-                b.push(false)
-            }
-            this.removeElement(a, null);
-            this.removeElement(v, null);
-            return b.join('?')
-        },hasXmlHttpRequestSupport: function() {
-            var x = null;
-            try {
-                x = new XMLHttpRequest()
-            } catch (e) {
-                try {
-                    x = new ActiveXObject("Microsoft.XMLHTTP")
-                } catch (e) {
-                    try {
-                        x = new ActiveXObject("Msxml2.XMLHTTP")
-                    } catch (e) {
-                        x = null
-                    }
-                }
-            }
-            return !!x !== null
-        },getSpecialFeatures: function() {
-            var k = [];
-            var j = [window.postMessage, Storage, FileReader, Worker, navigator.geolocation, window.applicationCache, window.indexedDB, window.WebSocket, window.openDatabase];
-            for (var i = 0; i < j.length; i++) {
-                k.push(((typeof (j[i]) !== 'undefined') ? true : false))
-            }
-            return k.join('?')
-        },getCanvasFingerprint: function() {
+            
+            document.body.innerHTML = e;
+            return [k.join(':'), k.length]
+        },
+        getCanvasFingerprint: function() {
             function atob(a) {
                 var b = '', e, c, h = '', f, g = '', d = 0;
                 k = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -199,10 +186,12 @@
                 return this.removeElement(a, bin2hex(b.slice(-16, -12)))
             }
             return false
-        },isCanvasSupported: function() {
+        },
+        isCanvasSupported: function() {
             var e = document.createElement('canvas');
             return !!(e.getContext && e.getContext('2d'))
-        },WebglSupport: function(r) {
+        },
+        WebglSupport: function(r) {
             if (!!(window.WebGLRenderingContext) && this.isCanvasSupported()) {
                 var s = document.createElement("canvas");
                 var n = ["webgl", "experimental-webgl", "moz-webgl", "webkit-3d"];
@@ -221,7 +210,8 @@
                 }
             }
             return false
-        },getWebglInformations: function() {
+        },
+        getWebglInformations: function() {
             var c = this.WebglSupport(1);
             var k = [!!(c) ? c.name : false];
             if (c) {
@@ -252,7 +242,8 @@
                 k.push(j.join('?'))
             }
             return k.join('?')
-        },hasFontSmoothing: function() {
+        },
+        hasFontSmoothing: function() {
             var c;
             if (typeof (screen.fontSmoothingEnabled) === "undefined" && this.isCanvasSupported()) {
                 try {
@@ -274,69 +265,70 @@
                             }
                         }
                     }
-                } catch (ex) {
+                } catch (e) {
+                    return
                 }
             }
             return this.removeElement(c, false)
-        },MurmurHashFunction: function(e, f) {
-            var m = 0x5bd1e995;
-            var r = 24;
-            var h = f ^ e.length;
-            var g = e.length;
-            var i = 0;
-            while (g >= 4) {
-                var k = UInt32(e, i);
-                k = Umul32(k, m);
-                k ^= k >>> r;
-                k = Umul32(k, m);
-                h = Umul32(h, m);
-                h ^= k;
-                i += 4;
-                g -= 4
-            }
-            switch (g) {
-                case 3:
-                    h ^= UInt16(e, i);
-                    h ^= e.charCodeAt(i + 2) << 16;
-                    h = Umul32(h, m);
-                    break;
-                case 2:
-                    h ^= UInt16(e, i);
-                    h = Umul32(h, m);
-                    break;
-                case 1:
-                    h ^= e.charCodeAt(i);
-                    h = Umul32(h, m);
-                    break
-            }
-            h ^= h >>> 13;
-            h = Umul32(h, m);
-            h ^= h >>> 15;
-            return h >>> 0;
-            function UInt32(a, b) {
-                return (a.charCodeAt(b++)) + (a.charCodeAt(b++) << 8) + (a.charCodeAt(b++) << 16) + (a.charCodeAt(b) << 24)
-            }
-            function UInt16(a, b) {
-                return (a.charCodeAt(b++)) + (a.charCodeAt(b++) << 8)
-            }
-            function Umul32(n, m) {
-                n = n | 0;
-                m = m | 0;
-                var a = n & 0xffff;
-                var b = n >>> 16;
-                var c = ((a * m) + (((b * m) & 0xffff) << 16)) | 0;
-                return c
-            }
-            function getBucket(a, b) {
-                var c = doHash(a, a.length);
-                var d = c % b;
-                return d
-            }
-        },removeElement: function(e, r) {
-            if (typeof (e) !== 'undefined') {
+        },
+        removeElement: function(e, r) {
+            if (typeof (e) !== 'undefined')
                 document.body.removeChild(e)
-            }
+            
             return r
-        }};
+        }
+    };
+    
     return T
+});
+
+;
+(function(a, b, c) {
+    b[a] = c()
+})('F', this, function() {
+    
+    var F = function(h) {
+        this.e = ['Serif', 'Monospace', 'Sans-Serif'];
+        
+        this.h = document.getElementsByTagName("body")[0];
+        this.s = document.createElement("span");
+        
+        this.s.style.fontSize = '32px';
+        this.s.innerHTML = "wLLiwLw";
+        
+        this.i = {};
+        this.j = {};
+        
+        for (var k in this.e) {
+            this.s.style.fontFamily = this.e[k];
+            this.h.appendChild(this.s);
+            this.i[this.e[k]] = this.s.offsetWidth;
+            this.j[this.e[k]] = this.s.offsetHeight;
+            this.h.removeChild(this.s)
+        }
+    };
+    
+    F.prototype = {
+        getFontList: function() {
+            var fonts = ['Segoe UI', 'Lucida Grande', 'Chicago', 'System', 'Schoko-Cooky', 'Cool jazz', 'Helvetica S', 'Rosemary', 'Wingdings 3', 'cursive', 'monospace', 'serif', 'sans-serif', 'fantasy', 'default', 'Arial', 'Arial Black', 'Arial Narrow', 'Arial Rounded MT Bold', 'Bookman Old Style', 'Bradley Hand ITC', 'Consolas', 'Century', 'Century Gothic', 'Comic Sans MS', 'Courier', 'Courier New', 'Georgia', 'Gentium', 'Impact', 'King', 'Lucida Console', 'Lalit', 'Modena', 'Monotype Corsiva', 'Papyrus', 'Tahoma', 'TeX', 'Times', 'Times New Roman', 'Trebuchet MS', 'Verdana', 'Verona', 'Diogenes', 'CatShop', 'Open Sans', 'Furry', 'Elegant'];
+            
+            for (var i = 0, l = fonts.length, n = []; i < l; i++)
+                n[n.length] = this.trackFonts(fonts[i]).toString().charAt(0);
+            
+            return n.join('')
+        },
+        trackFonts: function(a) {
+            var b = false;
+            for (var c in this.e) {
+                this.s.style.fontFamily = a + ',' + this.e[c];
+                this.h.appendChild(this.s);
+                var d = (this.s.offsetWidth != this.i[this.e[c]] || this.s.offsetHeight != this.j[this.e[c]]);
+                this.h.removeChild(this.s);
+                b = b || d;
+            }
+            return b
+        }
+    };
+    
+    return F
 });
